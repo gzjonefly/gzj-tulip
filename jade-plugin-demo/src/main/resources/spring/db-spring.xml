@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+
+    <description>公共的默认数据源配置</description>
+
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:/application.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 数据源dz_db配置 -->
+    <bean id="jade.dataSource.dz_db" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <!-- 数据库驱动 -->
+        <property name="driverClassName" value="${db.driverClass}"/>
+        <!-- URL地址 -->
+        <property name="jdbcUrl" value="${db.dbUrl}"/>
+        <!-- 数据库用户名 -->
+        <property name="username" value="${db.userName}"/>
+        <!-- 数据库密码 -->
+        <property name="password" value="${db.passWord}"/>
+        <!-- 连接只读数据库时配置为true， 保证安全 -->
+        <property name="readOnly" value="false"/>
+        <!-- 等待连接池分配连接的最大时长（毫秒），超过这个时长还没可用的连接则发生SQLException， 缺省:30秒 -->
+        <property name="connectionTimeout" value="30000"/>
+        <!-- 一个连接idle状态的最大时长（毫秒），超时则被释放（retired），缺省:10分钟 -->
+        <property name="idleTimeout" value="600000"/>
+        <!-- 一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），缺省:30分钟，建议设置比数据库超时时长少30秒，参考MySQL wait_timeout参数（show variables like '%timeout%';） -->
+        <property name="maxLifetime" value="1800000"/>
+        <!-- 连接池中允许的最大连接数。缺省值：10；推荐的公式：((core_count * 2) + effective_spindle_count) -->
+        <property name="maximumPoolSize" value="100"/>
+        <!-- 连接池中最小的空闲的连接数，低于这个数量会被创建新的连接 -->
+        <property name="minimumIdle" value="5"/>
+        <property name="connectionTestQuery" value="SELECT 1"/>
+    </bean>
+
+    <!-- 数据源dz_db配置 -->
+    <bean id="jade.dataSource.blue_user" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <!-- 数据库驱动 -->
+        <property name="driverClassName" value="${db_blue_user.driverClass}"/>
+        <!-- URL地址 -->
+        <property name="jdbcUrl" value="${db_blue_user.dbUrl}"/>
+        <!-- 数据库用户名 -->
+        <property name="username" value="${db_blue_user.userName}"/>
+        <!-- 数据库密码 -->
+        <property name="password" value="${db_blue_user.passWord}"/>
+        <!-- 连接只读数据库时配置为true， 保证安全 -->
+        <property name="readOnly" value="false"/>
+        <!-- 等待连接池分配连接的最大时长（毫秒），超过这个时长还没可用的连接则发生SQLException， 缺省:30秒 -->
+        <property name="connectionTimeout" value="30000"/>
+        <!-- 一个连接idle状态的最大时长（毫秒），超时则被释放（retired），缺省:10分钟 -->
+        <property name="idleTimeout" value="600000"/>
+        <!-- 一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），缺省:30分钟，建议设置比数据库超时时长少30秒，参考MySQL wait_timeout参数（show variables like '%timeout%';） -->
+        <property name="maxLifetime" value="1800000"/>
+        <!-- 连接池中允许的最大连接数。缺省值：10；推荐的公式：((core_count * 2) + effective_spindle_count) -->
+        <property name="maximumPoolSize" value="100"/>
+        <!-- 连接池中最小的空闲的连接数，低于这个数量会被创建新的连接 -->
+        <property name="minimumIdle" value="5"/>
+        <property name="connectionTestQuery" value="SELECT 1"/>
+    </bean>
+
+    <!--&lt;!&ndash; 配置事务管理器，注意这里的dataSource和SqlSessionFactoryBean的dataSource要一致，不然事务就没有作用了 &ndash;&gt;
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    &lt;!&ndash; 开启注解方式声明事务 &ndash;&gt;
+    <tx:annotation-driven transaction-manager="transactionManager" order="1"/>
+
+    &lt;!&ndash; 定义SqlSessionFactory &ndash;&gt;
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        &lt;!&ndash; 全局sqlMapConfig.xml公共配置文件路径 &ndash;&gt;
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageHelper">
+                    <property name="properties">
+                        <value>
+                            dialect=mysql
+                            pageSizeZero=true
+                        </value>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+
+
+    &lt;!&ndash; 开启注解方式声明事务 &ndash;&gt;
+    <tx:annotation-driven transaction-manager="transactionManager" order="1"/>-->
+
+</beans>

@@ -1,0 +1,277 @@
+/**
+ *
+ */
+package com.gzj.tulip.jade.plugin.sql.dialect.mysql;
+
+import com.gzj.tulip.jade.plugin.sql.mapper.*;
+import com.gzj.tulip.jade.plugin.sql.util.PlumUtils;
+import com.gzj.tulip.jade.statement.StatementRuntime;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author Alan.Geng[gengzhi718@gmail.com]
+ */
+public class UpdateGenerator extends ConditionalGenerator {
+
+    @Override
+    protected void beforeApplyConditions(
+            ConditionalOperationMapper operationMapper,
+            StatementRuntime runtime, StringBuilder sql) {
+        super.beforeApplyConditions(operationMapper, runtime, sql);
+
+        sql.append("UPDATE ");
+        sql.append(operationMapper.getTargetEntityMapper().getName());
+    }
+
+    @Override
+    public void applyConditions(ConditionalOperationMapper operationMapper,
+                                StatementRuntime runtime, StringBuilder sql) {
+
+        if (operationMapper.isEntityConditionsMode()) {//实体、条件混合模式
+            Map<String, Object> parametersValue = runtime.getParameters();
+            if (!operationMapper.getName().equals(IOperationMapper.OPERATION_UPDATE)) {
+                throw new InvalidDataAccessApiUsageException("Operation mapper must be a update.");
+            }
+
+            List<IParameterMapper> parameters = operationMapper.getParameters();
+            if (PlumUtils.isEmpty(parameters)) {
+                throw new InvalidDataAccessApiUsageException("Update operation must have parameters.");
+            }
+
+            StringBuilder where = new StringBuilder(32);
+            IParameterMapper param = parameters.get(0);
+
+            if (param instanceof IExpandableParameterMapper) {
+                List<IParameterMapper> expandParams = ((IExpandableParameterMapper) param).expand();
+                Object parameterValue = parametersValue.get(param.getName());
+
+                sql.append(" SET ");
+                for (IParameterMapper p : expandParams) {
+                    IColumnMapper columnMapper = p.getColumnMapper();
+                    if (columnMapper != null) {
+                        Field field = p.getColumnMapper().getOriginal();
+                        Object value = null;
+                        try {
+                            value = field.get(parameterValue);
+                        } catch (Exception e) {
+                            throw new IllegalArgumentException("Cannot get field value \"" + operationMapper.getTargetEntityMapper().getOriginal().getSimpleName() + "." + field.getName() + "\".", e);
+                        }
+
+                        if (param.isIgnoreNull()
+                                && value == null) {
+                            continue;
+                        } else {
+                            sql.append(p.getColumnMapper().getName());
+                            sql.append(" = ");
+                            sql.append(":");
+                            sql.append(param.getName());
+                            sql.append(".");
+                            sql.append(p.getColumnMapper().getOriginalName());
+                            sql.append(",");
+                        }
+                    }
+                }
+                sql.setLength(sql.length() - 1);
+                sql.append(where);
+                super.applyConditions(operationMapper, runtime, sql);
+            } else {
+                throw new InvalidDataAccessApiUsageException("Auto update operation parameter must be a expandable.");
+            }
+        } else if (operationMapper.isEntityMode()
+                || operationMapper.isEntityCollectionMode()) {
+            // 通过实体或实体集合更新
+
+            Map<String, Object> parametersValue = runtime.getParameters();
+            if (!operationMapper.getName().equals(IOperationMapper.OPERATION_UPDATE)) {
+                throw new InvalidDataAccessApiUsageException("Operation mapper must be a update.");
+            }
+
+            List<IParameterMapper> parameters = operationMapper.getParameters();
+            if (PlumUtils.isEmpty(parameters)) {
+                throw new InvalidDataAccessApiUsageException("Update operation must have parameters.");
+            }
+
+            IEntityMapper targetEntityMapper = operationMapper.getTargetEntityMapper();
+            if (parameters.size() == 1
+                    && parameters.get(0).getType().equals(targetEntityMapper.getOriginal())) {
+                StringBuilder where = new StringBuilder(32);
+                IParameterMapper param = parameters.get(0);
+
+                if (param instanceof IExpandableParameterMapper) {
+                    List<IParameterMapper> expandParams = ((IExpandableParameterMapper) param).expand();
+                    //change by guozijian 通过名字拿 解决多参数问题
+                    Object parameterValue = parametersValue.get(param.getName());
+
+                    sql.append(" SET ");
+                    for (IParameterMapper p : expandParams) {
+                        IColumnMapper columnMapper = p.getColumnMapper();
+                        if (columnMapper != null) {
+                            Field field = p.getColumnMapper().getOriginal();
+                            Object value = null;
+                            try {
+                                value = field.get(parameterValue);
+                            } catch (Exception e) {
+                                throw new IllegalArgumentException("Cannot get field value \"" + operationMapper.getTargetEntityMapper().getOriginal().getSimpleName() + "." + field.getName() + "\".", e);
+                            }
+                            if (p.getColumnMapper().isPrimaryKey()) {
+                                // 主键视为条件
+                                if (value == null) {
+                                    throw new IllegalArgumentException("Cannot execute update, primary key \"" + p.getColumnMapper().getName() + "\" must not be null.");
+                                }
+
+                                if (where.length() > 0) {
+                                    where.append(" AND ");
+                                } else {
+                                    where.append(" WHERE ");
+                                }
+
+                                where.append(p.getColumnMapper().getName());
+                                where.append(" = :");
+                                where.append(param.getName());
+                                where.append(".");
+                                where.append(p.getColumnMapper().getOriginalName());
+                            } else {
+                                if (param.isIgnoreNull()
+                                        && value == null) {
+                                    continue;
+                                } else {
+                                    sql.append(p.getColumnMapper().getName());
+                                    sql.append(" = ");
+                                    sql.append(":");
+                                    sql.append(param.getName());
+                                    sql.append(".");
+                                    sql.append(p.getColumnMapper().getOriginalName());
+                                    sql.append(",");
+                                }
+                            }
+                        }
+                    }
+                    sql.setLength(sql.length() - 1);
+                    sql.append(where);
+
+                } else {
+                    throw new InvalidDataAccessApiUsageException("Auto update operation parameter must be a expandable.");
+                }
+
+            } else {
+                throw new InvalidDataAccessApiUsageException("Please use the entity object to update.");
+            }
+        } else {
+            int start = sql.length();
+            List<IParameterMapper> parameters = operationMapper.getParameters();
+
+            for (int i = 0; i < operationMapper.getWhereAt(); i++) {
+                IParameterMapper param = parameters.get(i);
+                boolean ignoreNull = operationMapper.isIgnoreNull() || param.isIgnoreNull();
+                Object value = runtime.getParameters().get(param.getOriginalName());
+
+                if (ignoreNull
+                        && value == null) {
+                    continue;
+                }
+                if (sql.length() == start) {
+                    sql.append(" SET ");
+                }
+                sql.append(param.getName());
+                sql.append(" = :");
+                sql.append(param.getOriginalName());
+                sql.append(",");
+            }
+
+            if (sql.length() == start) {
+                throw new InvalidDataAccessApiUsageException("Update is ignore null, must have least 1 non-null parameter.");
+            }
+
+            if (sql.charAt(sql.length() - 1) == ',') {
+                sql.setLength(sql.length() - 1);
+            }
+            super.applyConditions(operationMapper, runtime, sql);
+        }
+    }
+
+	/* (non-Javadoc)
+     * @see com.cainiao.depot.project.biz.common.jade.dialect.ISQLGenerator#generate(com.cainiao.depot.project.biz.common.jade.mapper.IOperationMapper)
+	 */
+    /*
+    @Override
+	public String generate(OperationMapper operationMapper, StatementRuntime runtime) {
+		Map<String, Object> params = runtime.getParameters();
+		if(!operationMapper.getName().equals(IOperationMapper.OPERATION_UPDATE)) {
+			throw new InvalidDataAccessApiUsageException("Operation mapper must be a update.");
+		}
+		
+		List<IParameterMapper> parameters = operationMapper.getParameters();
+		if(MyLangUtils.isEmpty(parameters)) {
+			throw new InvalidDataAccessApiUsageException("Update operation must have parameters.");
+		}
+		
+		IEntityMapper targetEntityMapper = operationMapper.getTargetEntityMapper();
+		
+		if(parameters.size() == 1 && parameters.get(0).getType().equals(targetEntityMapper.getOriginal())) {
+			StringBuilder sql = new StringBuilder(256);
+			sql.append("UPDATE ");
+			StringBuilder where = new StringBuilder(32);
+			sql.append(targetEntityMapper.getName());
+			
+			IParameterMapper param = parameters.get(0);
+			
+			if(param instanceof IExpandableParameterMapper) {
+				List<IParameterMapper> expandParams = ((IExpandableParameterMapper) param).expand();
+				Object entityObject = params.entrySet().iterator().next().getValue();
+				
+				sql.append(" SET");
+				try {
+					for(IParameterMapper p : expandParams) {
+						IColumnMapper columnMapper = p.getColumnMapper();
+						if(columnMapper != null) {
+							Field field = p.getColumnMapper().getOriginal();
+							Object value = field.get(entityObject);
+							if(p.getColumnMapper().isPrimaryKey()) {
+								// 主键视为条件
+								if(value == null) {
+									throw new IllegalArgumentException("Cannot execute update, primary key \"" + p.getColumnMapper().getName() + "\" must not be null.");
+								}
+								
+								if(where.length() > 0) {
+									where.append(" AND ");
+								} else {
+									where.append(" WHERE ");
+								}
+								
+								where.append(p.getName());
+								where.append(" = :");
+								where.append(p.getOriginalName());
+							} else {
+								if(value != null) {
+									sql.append(" ");
+									sql.append(p.getName());
+									sql.append(" = ");
+									sql.append(":");
+									sql.append(p.getOriginalName());
+									sql.append(",");
+								}
+							}
+						}
+					}
+					sql.setLength(sql.length() - 1);
+					sql.append(where);
+				} catch(IllegalArgumentException e) {
+					throw new InvalidDataAccessApiUsageException("", e);
+				} catch (Exception e) {
+					throw new InvalidDataAccessApiUsageException("Cannot generate sql.", e);
+				}
+			} else {
+				throw new InvalidDataAccessApiUsageException("Auto update operation parameter must be a expandable.");
+			}
+			
+			return sql.toString();
+		} else {
+			throw new InvalidDataAccessApiUsageException("Please use the entity object to update.");
+		}
+	}
+	*/
+}
