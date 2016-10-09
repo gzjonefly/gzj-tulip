@@ -33,12 +33,6 @@ public class UserInfoConditions extends AbstractConditions {
         return criteria;
     }
 
-    public void clear() {
-        oredCriteria.clear();
-        orderByClause = null;
-        distinct = false;
-    }
-
     public static class Criteria extends GeneratedCriteria {
 
         protected Criteria() {

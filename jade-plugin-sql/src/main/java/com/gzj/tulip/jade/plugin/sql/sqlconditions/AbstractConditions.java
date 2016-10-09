@@ -38,6 +38,13 @@ public abstract class AbstractConditions implements IConditions {
         oredCriteria.add(criteria);
     }
 
+    public void clear() {
+        if (oredCriteria != null) {
+            oredCriteria.clear();
+        }
+        orderByClause = null;
+        distinct = false;
+    }
 
     public abstract static class GeneratedCriteria {
         protected List<Criterion> criteria;
