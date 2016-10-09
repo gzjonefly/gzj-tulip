@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+	<classPathEntry
+			location="D:/kanzhun/.m2/repository/mysql/mysql-connector-java/5.1.36/mysql-connector-java-5.1.36.jar" />
+	<context id="dbcontext">
+
+		<plugin type="com.gzj.dao.plugin.Plugin" />
+		<commentGenerator>
+			<property name="suppressAllComments" value="true"/>
+			<property name="suppressDate" value="true" />
+		</commentGenerator>
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+						connectionURL="jdbc:mysql://192.168.253.166:3306/dz_db"
+						userId="kanzhun" password="kanzhun" />
+
+		<!-- 是否强制转换 只有forceBigDecimals 一个属性 -->
+		<javaTypeResolver type="com.gzj.dao.plugin.JavaTypeResolverImpl">
+			<!-- 根据数据库字段长自动匹配，默认为false：bigdecimal,long,int,short ,为true时始终使用bigdecimal -->
+			<property name="forceBigDecimals" value="true" />
+		</javaTypeResolver>
+
+		<javaModelGenerator targetPackage="com.gzj.dao.model"
+							targetProject=".\src\main\java">
+		</javaModelGenerator>
+		<sqlMapGenerator targetPackage="com.gzj.dao.mapper"
+						 targetProject=".\src\main\java">
+		</sqlMapGenerator>
+		<javaClientGenerator targetPackage="com.gzj.dao.mapper"
+							 targetProject=".\src\main\java" type="DAO" >
+		</javaClientGenerator>
+		<!-- <table  tableName="spider_corp_info"><generatedKey column="ID" sqlStatement="Mysql" type="post" identity="true"/></table> -->
+		<!-- <table  tableName="spider_log"><generatedKey column="ID" sqlStatement="Mysql" type="post" identity="true"/></table> -->
+		<table  tableName="spider_corp_sms_send">
+			<property name="modelOnly" value="true" />
+			<property name="tableDao" value="true" />
+			<property name="condition" value="true" />
+			<generatedKey column="ID" sqlStatement="Mysql" type="post" identity="true"/>
+		</table>
+		<!-- <table  tableName="spider_corp_negative"><generatedKey column="ID" sqlStatement="Mysql" type="post" identity="true"/></table> -->
+		<!-- 		<table  tableName="spider_proxy"><generatedKey column="ID" sqlStatement="Mysql" type="post" identity="true"/></table> -->
+	</context>
+</generatorConfiguration>
