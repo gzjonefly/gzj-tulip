@@ -45,10 +45,7 @@ import org.springframework.util.ResourceUtils;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * {@link JadeBeanFactoryPostProcessor}
@@ -152,6 +149,16 @@ import java.util.Set;
  * @author 廖涵 [in355hz@gmail.com]
  */
 public class JadeBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+
+    private static ResourceBundle bundle;
+
+    static {
+        try {
+            bundle = ResourceBundle.getBundle("rose");
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+    }
 
     /**
      * 开关属性前缀常量
@@ -282,6 +289,13 @@ public class JadeBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
     public final void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
             throws BeansException {
         String springFlag = System.getProperty(propertyPrefix);
+        if (bundle != null) {
+            try {
+                springFlag = bundle.getString(propertyPrefix);
+            } catch (Exception e) {
+                //e.printStackTrace();
+            }
+        }
 
         // 对于配置了jade.context.spring 系统属性的，表示jade的spring初始化工作不由本类负责。
         if (springFlag != null && springFlag.length() > 0) {
@@ -441,8 +455,22 @@ public class JadeBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
             String flag;
             if (name.length() == 0) {
                 flag = System.getProperty(propertyPrefix + ".*");
+                if (bundle != null) {
+                    try {
+                        flag = bundle.getString(propertyPrefix + ".*");
+                    } catch (Exception e) {
+                        //e.printStackTrace();
+                    }
+                }
             } else {
                 flag = System.getProperty(propertyPrefix + "." + name);
+                if (bundle != null) {
+                    try {
+                        flag = bundle.getString(propertyPrefix + "." + name);
+                    } catch (Exception e) {
+                        //e.printStackTrace();
+                    }
+                }
             }
             if (flag == null) {
                 int index = name.lastIndexOf('.');
