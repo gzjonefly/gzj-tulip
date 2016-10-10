@@ -35,6 +35,7 @@
 			<property name="modelOnly" value="true" />
 			<property name="tableDao" value="true" />
 			<property name="condition" value="true" />
+			<property name="tableCatalog" value="dz_db" />
 			<generatedKey column="ID" sqlStatement="Mysql" type="post" identity="true"/>
 		</table>
 		<!-- <table  tableName="spider_corp_negative"><generatedKey column="ID" sqlStatement="Mysql" type="post" identity="true"/></table> -->

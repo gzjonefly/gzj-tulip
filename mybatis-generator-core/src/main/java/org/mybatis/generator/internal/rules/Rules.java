@@ -251,5 +251,7 @@ public interface Rules {
 
     public boolean generateJavaDao();
 
+    public String getTableCatalog();
+
     IntrospectedTable getIntrospectedTable();
 }

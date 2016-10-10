@@ -5,6 +5,6 @@ import com.gzj.dao.model.SpiderCorpSmsSendDO;
 import com.gzj.tulip.jade.annotation.DAO;
 import com.gzj.tulip.jade.plugin.sql.GenericDAO;
 
-@DAO
+@DAO(catalog = "dz_db")
 public interface SpiderCorpSmsSendDAO extends GenericDAO<SpiderCorpSmsSendDO, Integer, SpiderCorpSmsSendConditions> {
 }

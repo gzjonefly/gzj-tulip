@@ -3,19 +3,19 @@
  */
 package com.gzj.tulip.jade.plugin.sql;
 
+import com.gzj.tulip.jade.annotation.SQL;
 import com.gzj.tulip.jade.plugin.sql.annotations.Table;
 import com.gzj.tulip.jade.plugin.sql.dialect.IDialect;
+import com.gzj.tulip.jade.plugin.sql.dialect.MySQLDialect;
 import com.gzj.tulip.jade.plugin.sql.mapper.EntityMapperManager;
+import com.gzj.tulip.jade.plugin.sql.mapper.IOperationMapper;
+import com.gzj.tulip.jade.plugin.sql.mapper.OperationMapperManager;
 import com.gzj.tulip.jade.plugin.sql.util.BasicSQLFormatter;
 import com.gzj.tulip.jade.plugin.sql.util.PlumUtils;
 import com.gzj.tulip.jade.statement.DAOMetaData;
-import com.gzj.tulip.jade.statement.StatementRuntime;
-import com.gzj.tulip.jade.annotation.SQL;
-import com.gzj.tulip.jade.plugin.sql.dialect.MySQLDialect;
-import com.gzj.tulip.jade.plugin.sql.mapper.IOperationMapper;
-import com.gzj.tulip.jade.plugin.sql.mapper.OperationMapperManager;
 import com.gzj.tulip.jade.statement.Interpreter;
 import com.gzj.tulip.jade.statement.StatementMetaData;
+import com.gzj.tulip.jade.statement.StatementRuntime;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
@@ -98,6 +98,10 @@ public class PlumSQLInterpreter implements Interpreter, InitializingBean, Applic
                                 || "jade-plugin-sql".equals(sqlAnnotation.value()) // 明确表示使用jade-plugin-sql
                                 || runtime.getSQL().contains("{table_columns}")) //包含表列名
                         {
+                            //add by guozijian
+                            if (sqlAnnotation == null || PlumUtils.isBlank(sqlAnnotation.value())) {
+                                runtime.setSQL("");
+                            }
                             IOperationMapper mapper = operationMapperManager.create(smd);
                             interpreter = new SQLGeneratorInterpreter(mapper);
                         } else if (sqlAnnotation.value().contains("count(*)")) {
@@ -219,7 +223,7 @@ public class PlumSQLInterpreter implements Interpreter, InitializingBean, Applic
                 return null;
             }
 
-            if (source.matches("^[a-zA-Z\\\\.]+$")) {
+            if (source.matches("^[a-zA-Z\\\\.]+$") || source.matches("^[a-zA-Z_$][a-zA-Z0-9_$]*")) {
                 StringBuilder result = new StringBuilder();
 
                 for (int i = 0; i < source.length(); i++) {

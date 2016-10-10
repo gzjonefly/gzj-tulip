@@ -12,7 +12,7 @@ import java.util.List;
  * @date 2016/9/23 20:25
  */
 @DAO(catalog = "dz_db")
-public interface UserDAO{
+public interface UserDAO {
     @SQL("create table user (id int, name varchar(200));")
     void createTable();
 

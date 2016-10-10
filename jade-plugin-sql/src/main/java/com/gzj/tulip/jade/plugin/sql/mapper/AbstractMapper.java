@@ -56,7 +56,10 @@ public abstract class AbstractMapper<O> implements IMapper<O> {
             return null;
         }
 
-        if (source.matches("^[a-zA-Z\\\\.]+$")) {
+
+        //if (source.matches("^[a-zA-Z\\\\.]+$")) {
+        //change by guozijan
+        if (source.matches("^[a-zA-Z\\\\.]+$") || source.matches("^[a-zA-Z_$][a-zA-Z0-9_$]*")) {
             StringBuilder result = new StringBuilder();
 
             for (int i = 0; i < source.length(); i++) {

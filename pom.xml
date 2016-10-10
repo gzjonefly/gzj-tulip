@@ -54,6 +54,7 @@
         <module>gzj-tulip-load</module>
         <module>gzj-tulip-jade</module>
         <module>jade-plugin-sql</module>
+        <module>mybatis-generator-core</module>
     </modules>
 
     <!-- snapshot库 -->
@@ -237,6 +238,14 @@
     <!-- 插件配置 -->
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.5</version >
+                <configuration >
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
             <!-- maven-resources-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -306,7 +315,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.6</version>
-                <executions>
+                <!--<executions>
                     <execution>
                         <id>sign-artifacts</id>
                         <phase>verify</phase>
@@ -314,7 +323,7 @@
                             <goal>sign</goal>
                         </goals>
                     </execution>
-                </executions>
+                </executions>-->
             </plugin>
         </plugins>
 

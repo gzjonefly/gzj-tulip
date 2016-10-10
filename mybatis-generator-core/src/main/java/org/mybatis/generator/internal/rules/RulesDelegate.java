@@ -180,4 +180,9 @@ public class RulesDelegate implements Rules {
         return rules.generateJavaDao();
     }
 
+    @Override
+    public String getTableCatalog() {
+        return rules.getTableCatalog();
+    }
+
 }

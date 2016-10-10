@@ -57,6 +57,8 @@ public abstract class BaseRules implements Rules {
      */
     protected final boolean isDao;
 
+    protected final String tableCatalog;
+
     /**
      * Instantiates a new base rules.
      *
@@ -72,6 +74,7 @@ public abstract class BaseRules implements Rules {
         isCondition = StringUtility.isTrue(condition);
         String dao = tableConfiguration.getProperty(PropertyRegistry.TABLE_DAO);
         isDao = StringUtility.isTrue(dao);
+        tableCatalog = tableConfiguration.getProperty(PropertyRegistry.TABLE_CATALOG);
     }
 
     /**
@@ -517,5 +520,9 @@ public abstract class BaseRules implements Rules {
 
     public boolean generateJavaDao() {
         return isDao;
+    }
+
+    public String getTableCatalog() {
+        return tableCatalog;
     }
 }

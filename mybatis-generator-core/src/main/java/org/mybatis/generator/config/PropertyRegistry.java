@@ -21,7 +21,6 @@ package org.mybatis.generator.config;
  * properties, and helps to avoid spelling errors.
  *
  * @author Jeff Butler
- *
  */
 public class PropertyRegistry {
     public static final String ANY_ENABLE_SUB_PACKAGES = "enableSubPackages"; //$NON-NLS-1$
@@ -48,6 +47,7 @@ public class PropertyRegistry {
     public static final String TABLE_MODEL_ONLY = "modelOnly"; //$NON-NLS-1$
     public static final String TABLE_CONDITION = "condition"; //$NON-NLS-1$
     public static final String TABLE_DAO = "tableDao"; //$NON-NLS-1$
+    public static final String TABLE_CATALOG = "tableCatalog"; //$NON-NLS-1$
     public static final String TABLE_SELECT_ALL_ORDER_BY_CLAUSE = "selectAllOrderByClause"; //$NON-NLS-1$
 
     public static final String CONTEXT_BEGINNING_DELIMITER = "beginningDelimiter"; //$NON-NLS-1$

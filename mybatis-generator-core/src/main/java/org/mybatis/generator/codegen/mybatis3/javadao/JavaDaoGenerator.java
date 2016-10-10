@@ -9,6 +9,7 @@ import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.codegen.AbstractJavaClientGenerator;
 import org.mybatis.generator.codegen.AbstractXmlGenerator;
 import org.mybatis.generator.config.PropertyRegistry;
+import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,12 @@ public class JavaDaoGenerator extends AbstractJavaClientGenerator {
         Interface interfaze = new Interface(type);
         interfaze.setVisibility(JavaVisibility.PUBLIC);
 
-        interfaze.addAnnotation("@DAO");
+        String catalog = introspectedTable.getRules().getTableCatalog();
+        if (StringUtility.stringHasValue(catalog)) {
+            interfaze.addAnnotation("@DAO(catalog = \"" + catalog + "\")");
+        } else {
+            interfaze.addAnnotation("@DAO");
+        }
 
         interfaze.addSuperInterface(new FullyQualifiedJavaType("GenericDAO<" + table.getDomainObjectName() + "DO, " + introspectedTable.getPrimaryKeyColumns().get(0).getFullyQualifiedJavaType().getShortName() + ", " + table.getDomainObjectName() + "Conditions>"));
 
